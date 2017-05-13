@@ -40,7 +40,6 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -95,13 +94,7 @@ public class RottenFood {
     public void onPreInit(GamePreInitializationEvent evt) {
 		logger.info("Pre-Initializing...");
 		
-		DataRegistration.builder()
-			.dataClass(RottenData.class)
-			.immutableClass(ImmutableRottenData.class)
-			.builder(new RottenDataBuilder())
-			.manipulatorId(PLUGIN_ID + "_rottendata")
-			.dataName("Rotten Food")
-			.buildAndRegister(Sponge.getPluginManager().getPlugin(PLUGIN_ID).get());
+		Sponge.getDataManager().register(RottenData.class, ImmutableRottenData.class, new RottenDataBuilder());
 		Sponge.getDataManager().registerBuilder(RottenData.class, new RottenDataBuilder());
 
 		TypeSerializers.getDefaultSerializers().registerType(ItemConfig.TOKEN, new ItemConfigSerializer());
@@ -236,8 +229,8 @@ public class RottenFood {
 					ItemType repl = as.getReplacement();
 					newis = ItemStack.of(repl, is.getQuantity());
 					
-					if (repl == ItemTypes.NONE || repl == ItemTypes.AIR){
-						newis = ItemStack.empty();
+					if (repl == ItemTypes.NONE){
+						newis = ItemStack.of(ItemTypes.NONE, 0);
 					}
 					
 					break;
@@ -288,7 +281,7 @@ public class RottenFood {
 	public void load() throws IOException, ObjectMappingException {
 		List<ItemConfig> configs = Lists.newArrayList();
 		
-		Path path = Sponge.getConfigManager().getSharedConfig(this).getConfigPath();
+		Path path = Sponge.getGame().getConfigManager().getSharedConfig(this).getConfigPath();
 		
 		File file = path.toFile();
 		if (!file.exists()){
