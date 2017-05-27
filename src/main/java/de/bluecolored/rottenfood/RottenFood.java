@@ -74,7 +74,7 @@ import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 @Plugin(
 	id = RottenFood.PLUGIN_ID,
 	name = "RottenFood",
-	version = "1.0",
+	version = "1.0 (API 6.0)",
 	description = "This plugin gives items an expirationdate",
 	url = "http://www.bluecolored.de/rottenfood/",
 	authors = {"Blue (TBlueF, Lukas Rieger)", "Chaaya", "BlueColored", "craftednature"}
