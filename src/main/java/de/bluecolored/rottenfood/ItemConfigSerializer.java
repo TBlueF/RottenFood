@@ -26,7 +26,7 @@
 
 package de.bluecolored.rottenfood;
 
-import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextParseException;
 import org.spongepowered.api.text.serializer.TextSerializers;
@@ -45,7 +45,7 @@ public class ItemConfigSerializer implements TypeSerializer<ItemConfig> {
 		ItemConfig.Builder builder = ItemConfig.builder();
 		
 		for (ConfigurationNode item : config.getNode("items").getChildrenList()){
-			builder.addItem(item.getValue(TypeToken.of(ItemType.class)));
+			builder.addItem(RottenFood.readItemStack(item));
 		}
 		
 		for (ConfigurationNode state : config.getNode("states").getChildrenList()){
@@ -72,7 +72,7 @@ public class ItemConfigSerializer implements TypeSerializer<ItemConfig> {
 				}
 			}
 			
-			ItemType replacement = state.getNode("replacement-item").getValue(TypeToken.of(ItemType.class));
+			ItemStack replacement = RottenFood.readItemStack(state.getNode("replacement-item"));
 			
 			builder.addAgeState(new ItemAgeStateConfig(age, name, lore, replacement));
 		}
@@ -80,7 +80,7 @@ public class ItemConfigSerializer implements TypeSerializer<ItemConfig> {
 		for (ConfigurationNode mod : config.getNode("ageing-modifier").getChildrenList()){
 			double multiplier = mod.getNode("multiplier").getDouble(1);
 			
-			ItemType item = mod.getNode("item").getValue(TypeToken.of(ItemType.class));
+			ItemStack item = RottenFood.readItemStack(mod.getNode("item"));
 			if (item == null) throw new ObjectMappingException("Config-value 'item' in 'ageing-modifier' is missing!");
 			
 			int minItems = mod.getNode("min-item-count").getInt(1);

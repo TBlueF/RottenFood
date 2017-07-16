@@ -26,21 +26,21 @@
 
 package de.bluecolored.rottenfood;
 
-import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 public class ItemAgeingModifierConfig {
 
 	private double ageMultiplier;
-	private ItemType item;
+	private ItemStack item;
 	private int minItemCount;
 
-	public ItemAgeingModifierConfig(double ageMultiplyer, ItemType item) {
+	public ItemAgeingModifierConfig(double ageMultiplyer, ItemStack item) {
 		this.ageMultiplier = ageMultiplyer;
 		this.item = item;
 		minItemCount = 1;
 	}
 	
-	public ItemAgeingModifierConfig(double ageMultiplier, ItemType item, int minItemCount) {
+	public ItemAgeingModifierConfig(double ageMultiplier, ItemStack item, int minItemCount) {
 		this(ageMultiplier, item);
 		this.minItemCount = minItemCount;
 	}
@@ -49,7 +49,7 @@ public class ItemAgeingModifierConfig {
 		return ageMultiplier;
 	}
 	
-	public ItemType getItem(){
+	public ItemStack getItem(){
 		return item;
 	}
 	

@@ -26,13 +26,13 @@
 
 package de.bluecolored.rottenfood;
 
-import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 
 public class ItemAgeStateConfig {
 
 	private long age;
-	private ItemType replacement;
+	private ItemStack replacement;
 	private Text name;
 	private Text lore;
 	
@@ -50,14 +50,14 @@ public class ItemAgeStateConfig {
 		this.name = name;
 	}
 
-	public ItemAgeStateConfig(long age, ItemType replacement) {
+	public ItemAgeStateConfig(long age, ItemStack replacement) {
 		this.age = age;
 		this.replacement = replacement;
 		this.name = null;
 		this.lore = null;
 	}
 	
-	public ItemAgeStateConfig(long age, Text name, Text lore, ItemType replacement) {
+	public ItemAgeStateConfig(long age, Text name, Text lore, ItemStack replacement) {
 		this.age = age;
 		this.replacement = replacement;
 		this.lore = lore;
@@ -76,7 +76,7 @@ public class ItemAgeStateConfig {
 		return name;
 	}
 	
-	public ItemType getReplacement() {
+	public ItemStack getReplacement() {
 		return replacement;
 	}
 	

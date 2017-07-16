@@ -40,8 +40,11 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.GameReloadEvent;
@@ -62,6 +65,7 @@ import org.spongepowered.api.text.serializer.TextParseException;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import com.google.common.collect.Lists;
+import com.google.common.reflect.TypeToken;
 
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
@@ -74,7 +78,7 @@ import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 @Plugin(
 	id = RottenFood.PLUGIN_ID,
 	name = "RottenFood",
-	version = "1.0 (API 6.0)",
+	version = "1.1 (API 6.0)",
 	description = "This plugin gives items an expirationdate",
 	url = "http://www.bluecolored.de/rottenfood/",
 	authors = {"Blue (TBlueF, Lukas Rieger)", "Chaaya", "BlueColored", "craftednature"}
@@ -183,6 +187,17 @@ public class RottenFood {
 		}
 	}
 	
+	private boolean containsItem(Iterable<ItemStack> it, ItemStack item){
+		ItemStack is = item.copy();
+		
+		for (ItemStack is2 : it){
+			is.setQuantity(is2.getQuantity());
+			if (is.equalTo(is2)) return true;
+		}
+		
+		return false;
+	}
+	
 	public void updateItem(Slot slot, Inventory modifierScope, boolean forceUpdate){		
 		Optional<ItemStack> ois = slot.peek();
 		
@@ -192,7 +207,7 @@ public class RottenFood {
 		ItemStack old = is.copy();
 		
 		for (ItemConfig ic : itemConfigs){
-			if (!ic.getItems().contains(is.getItem())) continue;
+			if (!containsItem(ic.getItems(), is)) continue;
 			
 			RottenData data = is.get(RottenData.class).orElse(new RottenData());
 			long lastUpdate = data.getLastUpdate(); 
@@ -202,7 +217,7 @@ public class RottenFood {
 			
 			double modifier = 1;
 			for (ItemAgeingModifierConfig mod : ic.getAgingModifiers()){
-				ItemType type = mod.getItem();
+				ItemStack type = mod.getItem();
 				int count = mod.getMinItemCount();
 				
 				if (count > countItems(modifierScope, type)) continue;
@@ -233,11 +248,13 @@ public class RottenFood {
 				if (as.getLore() != null) lore = as.getLore();
 				
 				if (as.getReplacement() != null){
-					ItemType repl = as.getReplacement();
-					newis = ItemStack.of(repl, is.getQuantity());
-					
-					if (repl == ItemTypes.NONE || repl == ItemTypes.AIR){
+					ItemStack repl = as.getReplacement();
+					newis = repl.copy();
+
+					if (repl.getItem() == ItemTypes.NONE || repl.getItem() == ItemTypes.AIR){
 						newis = ItemStack.empty();
+					} else {
+						newis.setQuantity(is.getQuantity());
 					}
 					
 					break;
@@ -271,10 +288,10 @@ public class RottenFood {
 		}
 	}
 	
-	public int countItems(Inventory i, ItemType type){
+	public int countItems(Inventory i, ItemStack item){
 		int count = 0;
 		
-		for (Inventory isl : i.query(type).slots()){
+		for (Inventory isl : i.queryAny(item).slots()){
 			Slot sl = (Slot) isl;
 			Optional<ItemStack> ois = sl.peek();
 			if (ois.isPresent()){
@@ -352,6 +369,57 @@ public class RottenFood {
 		r = r.replace("%h", (h > 9 ? "" : "0") + h);
 		
 		return r;
+	}
+	
+	public static ItemStack readItemStack(ConfigurationNode item) throws ObjectMappingException {
+		ItemStack is;
+		
+		try {
+			
+			//try to read itemstack
+			is = item.getValue(TypeToken.of(ItemStack.class));
+			if (is != null) is.setQuantity(1);
+			
+		} catch (ObjectMappingException ex1){
+			
+			try {
+				
+				//try to construct item using unsafe damage
+				String itemDesc = item.getString();
+				if (itemDesc == null) return null;
+				
+				int i = itemDesc.lastIndexOf(':');
+				if (i == -1 || i + 1 >= itemDesc.length()) throw new ObjectMappingException("Failed to read item!");
+				
+				String itemTypeString = itemDesc.substring(0, i);
+				String unsafeDamageString = itemDesc.substring(i + 1);
+				
+				ItemType it = Sponge.getRegistry().getType(ItemType.class, itemTypeString).orElseThrow(() -> new ObjectMappingException("Failed to read item! (No such ItemType: '" + itemTypeString + "')"));
+				int unsafeDamage = 0;
+				try {
+					unsafeDamage = Integer.parseInt(unsafeDamageString);
+				} catch (NumberFormatException nfe){
+					throw new ObjectMappingException("Failed to read item! (could not parse unsafe damage)", nfe);
+				}
+				
+				is = ItemStack.of(it, 1);
+				try {
+					DataContainer data = is.toContainer();
+					data.set(DataQuery.of("UnsafeDamage"), unsafeDamage);
+					is = ItemStack.builder().fromContainer(data).build();
+				} catch (InvalidDataException ide){
+					throw new ObjectMappingException("Failed to read item! (could not apply unsafe damage)", ide);
+				}
+				
+			} catch (ObjectMappingException ex2){
+				
+				//try to only read itemtype
+				is = ItemStack.of( item.getValue(TypeToken.of(ItemType.class)), 1);
+				
+			}
+		}
+		
+		return is;
 	}
 	
 }

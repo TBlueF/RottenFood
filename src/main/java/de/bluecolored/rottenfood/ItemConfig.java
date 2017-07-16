@@ -29,7 +29,7 @@ package de.bluecolored.rottenfood;
 import java.util.Collections;
 import java.util.List;
 
-import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
@@ -40,13 +40,13 @@ public class ItemConfig {
 	private long stackingInterval;
 	private boolean showAge;
 	
-	private List<ItemType> items;
+	private List<ItemStack> items;
 	private List<ItemAgeStateConfig> ageStates;
 	private List<ItemAgeingModifierConfig> ageingModifiers;
 	
-	private ItemConfig(List<ItemType> items, List<ItemAgeStateConfig> ageStates, List<ItemAgeingModifierConfig> agingModifiers, long stackingInterval, boolean showAge){
+	private ItemConfig(List<ItemStack> items, List<ItemAgeStateConfig> ageStates, List<ItemAgeingModifierConfig> agingModifiers, long stackingInterval, boolean showAge){
 		this.items = Collections.unmodifiableList(items);
-
+		
 		ageStates.sort((as1, as2) -> {
 			return (int) Math.signum((double) as1.getAge() - (double) as2.getAge());
 		});
@@ -66,7 +66,7 @@ public class ItemConfig {
 		return showAge;
 	}
 	
-	public List<ItemType> getItems(){
+	public List<ItemStack> getItems(){
 		return items;
 	}
 	
@@ -87,7 +87,7 @@ public class ItemConfig {
 		private long stackingInterval;
 		private boolean showAge;
 		
-		private List<ItemType> items;
+		private List<ItemStack> items;
 		private List<ItemAgeStateConfig> ageStates;
 		private List<ItemAgeingModifierConfig> ageingModifiers;
 		
@@ -98,7 +98,7 @@ public class ItemConfig {
 			ageingModifiers = Lists.newArrayList();
 		}
 		
-		public Builder addItem(ItemType item){
+		public Builder addItem(ItemStack item){
 			items.add(item);
 			return this;
 		}
