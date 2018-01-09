@@ -54,6 +54,7 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.Slot;
+import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.item.inventory.type.GridInventory;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.scheduler.Task;
@@ -102,7 +103,7 @@ public class RottenFood {
 			.manipulatorId(PLUGIN_ID + "_rottendata")
 			.dataName("Rotten Food")
 			.buildAndRegister(Sponge.getPluginManager().getPlugin(PLUGIN_ID).get());
-		Sponge.getDataManager().registerBuilder(RottenData.class, new RottenDataBuilder());
+		//Sponge.getDataManager().registerBuilder(RottenData.class, new RottenDataBuilder());
 
 		TypeSerializers.getDefaultSerializers().registerType(ItemConfig.TOKEN, new ItemConfigSerializer());
 	}
@@ -192,7 +193,7 @@ public class RottenFood {
 		ItemStack old = is.copy();
 		
 		for (ItemConfig ic : itemConfigs){
-			if (!ic.getItems().contains(is.getItem())) continue;
+			if (!ic.getItems().contains(is.getType())) continue;
 			
 			RottenData data = is.get(RottenData.class).orElse(new RottenData());
 			long lastUpdate = data.getLastUpdate(); 
@@ -274,7 +275,7 @@ public class RottenFood {
 	public int countItems(Inventory i, ItemType type){
 		int count = 0;
 		
-		for (Inventory isl : i.query(type).slots()){
+		for (Inventory isl : i.query(QueryOperationTypes.ITEM_TYPE.of(type)).slots()){
 			Slot sl = (Slot) isl;
 			Optional<ItemStack> ois = sl.peek();
 			if (ois.isPresent()){

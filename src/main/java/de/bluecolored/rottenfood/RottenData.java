@@ -33,7 +33,6 @@ import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.key.Key;
-import org.spongepowered.api.data.key.KeyFactory;
 import org.spongepowered.api.data.manipulator.mutable.common.AbstractData;
 import org.spongepowered.api.data.merge.MergeFunction;
 import org.spongepowered.api.data.value.mutable.Value;
@@ -43,23 +42,27 @@ import com.google.common.reflect.TypeToken;
 public class RottenData extends AbstractData<RottenData, ImmutableRottenData> {
 
 	@SuppressWarnings("serial")
-	public static final Key<Value<Long>> UPDATE_TIME = KeyFactory.makeSingleKey(
-			TypeToken.of(Long.class), 
-			new TypeToken<Value<Long>>() {}, 
-			DataQuery.of("rotten", "updateTime"), RottenFood.PLUGIN_ID + ":update_time", "RottenFood Update Time");
-
-	@SuppressWarnings("serial")
-	public static final Key<Value<Long>> AGE = KeyFactory.makeSingleKey(
-			TypeToken.of(Long.class), 
-			new TypeToken<Value<Long>>() {}, 
-			DataQuery.of("rotten", "age"), RottenFood.PLUGIN_ID + ":age", "RottenFood Age");
+	public static final Key<Value<Long>> UPDATE_TIME = Key.builder()
+			.type(new TypeToken<Value<Long>>() {})
+			.query(DataQuery.of("rotten", "updateTime"))
+			.id(RottenFood.PLUGIN_ID + ":update_time")
+			.name("RottenFood Update Time")
+			.build();
 	
-
+	@SuppressWarnings("serial")
+	public static final Key<Value<Long>> AGE = Key.builder()
+			.type(new TypeToken<Value<Long>>() {})
+			.query(DataQuery.of("rotten", "age"))
+			.id(RottenFood.PLUGIN_ID + ":age")
+			.name("RottenFood Age")
+			.build();
+	
 	private long lastUpdate;
 	private long age;
 	
 	public RottenData() {
 		this(-1, 0);
+		
 	}
 	
 	public RottenData(long lastUpdate, long age){
