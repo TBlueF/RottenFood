@@ -45,7 +45,7 @@ public class RottenData extends AbstractData<RottenData, ImmutableRottenData> {
 	public static final Key<Value<Long>> UPDATE_TIME = Key.builder()
 			.type(new TypeToken<Value<Long>>() {})
 			.query(DataQuery.of("rotten", "updateTime"))
-			.id(RottenFood.PLUGIN_ID + ":update_time")
+			.id("update_time")
 			.name("RottenFood Update Time")
 			.build();
 	
@@ -53,7 +53,7 @@ public class RottenData extends AbstractData<RottenData, ImmutableRottenData> {
 	public static final Key<Value<Long>> AGE = Key.builder()
 			.type(new TypeToken<Value<Long>>() {})
 			.query(DataQuery.of("rotten", "age"))
-			.id(RottenFood.PLUGIN_ID + ":age")
+			.id("age")
 			.name("RottenFood Age")
 			.build();
 	
