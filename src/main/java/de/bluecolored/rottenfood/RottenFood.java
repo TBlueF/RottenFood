@@ -75,7 +75,7 @@ import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 @Plugin(
 	id = RottenFood.PLUGIN_ID,
 	name = "RottenFood",
-	version = "1.1 (API 7.0)",
+	version = "1.2 (API 7.1)",
 	description = "This plugin gives items an expirationdate",
 	url = "http://www.bluecolored.de/rottenfood/",
 	authors = {"Blue (TBlueF, Lukas Rieger)", "Chaaya", "BlueColored", "craftednature"}
@@ -100,9 +100,9 @@ public class RottenFood {
 			.dataClass(RottenData.class)
 			.immutableClass(ImmutableRottenData.class)
 			.builder(new RottenDataBuilder())
-			.manipulatorId(PLUGIN_ID + "_rottendata")
-			.dataName("Rotten Food")
-			.buildAndRegister(Sponge.getPluginManager().getPlugin(PLUGIN_ID).get());
+			.id(PLUGIN_ID + "_rottendata")
+			.name("Rotten Food")
+			.build();
 		//Sponge.getDataManager().registerBuilder(RottenData.class, new RottenDataBuilder());
 
 		TypeSerializers.getDefaultSerializers().registerType(ItemConfig.TOKEN, new ItemConfigSerializer());
