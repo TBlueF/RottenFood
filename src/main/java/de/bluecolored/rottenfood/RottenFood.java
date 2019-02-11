@@ -33,7 +33,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -75,7 +74,7 @@ import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 @Plugin(
 	id = RottenFood.PLUGIN_ID,
 	name = "RottenFood",
-	version = "1.2 (API 7.1)",
+	version = "1.3 (API 8.0)",
 	description = "This plugin gives items an expirationdate",
 	url = "http://www.bluecolored.de/rottenfood/",
 	authors = {"Blue (TBlueF, Lukas Rieger)", "Chaaya", "BlueColored", "craftednature"}
@@ -178,18 +177,16 @@ public class RottenFood {
 				}
 			});
 		} else {
-			for (Inventory child : inv){
+			for (Inventory child : inv.children()){
 				updateInventory(child, forceUpdate);
 			}
 		}
 	}
 	
 	public void updateItem(Slot slot, Inventory modifierScope, boolean forceUpdate){		
-		Optional<ItemStack> ois = slot.peek();
+		ItemStack is = slot.peek();
+		if (is == null || is.equals(ItemStack.empty())) return;
 		
-		if (!ois.isPresent()) return;
-		
-		ItemStack is = ois.get();
 		ItemStack old = is.copy();
 		
 		for (ItemConfig ic : itemConfigs){
@@ -261,7 +258,7 @@ public class RottenFood {
 				lorelist.add(ageText);
 			}
 			
-			if (name != null && !newis.get(Keys.DISPLAY_NAME).orElse(Text.EMPTY).equals(name)) newis.offer(Keys.DISPLAY_NAME, name);
+			if (name != null && !newis.get(Keys.DISPLAY_NAME).orElse(Text.empty()).equals(name)) newis.offer(Keys.DISPLAY_NAME, name);
 			if (!newis.get(Keys.ITEM_LORE).orElse(Lists.newArrayList()).equals(lorelist)) newis.offer(Keys.ITEM_LORE, lorelist);
 
 			if (!newis.equalTo(old) || forceUpdate){
@@ -275,12 +272,11 @@ public class RottenFood {
 	public int countItems(Inventory i, ItemType type){
 		int count = 0;
 		
-		for (Inventory isl : i.query(QueryOperationTypes.ITEM_TYPE.of(type)).slots()){
-			Slot sl = (Slot) isl;
-			Optional<ItemStack> ois = sl.peek();
-			if (ois.isPresent()){
-				count += ois.get().getQuantity();
-			}
+		for (Slot sl : i.query(QueryOperationTypes.ITEM_TYPE.of(type)).slots()){
+			ItemStack is = sl.peek();
+			if (is == null || is.equals(ItemStack.empty())) continue;
+			
+			count += is.getQuantity();
 		}
 		
 		return count;

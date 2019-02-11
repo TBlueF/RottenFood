@@ -64,16 +64,6 @@ public class ImmutableRottenData extends AbstractImmutableData<ImmutableRottenDa
 	public int getContentVersion() {
 		return 1;
 	}
-
-	@Override
-	public DataContainer toContainer() {
-		DataContainer c = super.toContainer();
-		
-		c.set(RottenData.UPDATE_TIME, this.lastUpdate);
-		c.set(RottenData.AGE, this.age);
-		
-		return c;
-	}
 	
 	@Override
 	protected void registerGetters() {
@@ -82,6 +72,15 @@ public class ImmutableRottenData extends AbstractImmutableData<ImmutableRottenDa
 		
 		registerFieldGetter(RottenData.AGE, () -> age);
 		registerKeyValue(RottenData.AGE, this::age);
+	}
+
+	@Override
+	protected DataContainer fillContainer(DataContainer dataContainer) {
+
+		dataContainer.set(RottenData.UPDATE_TIME, this.lastUpdate);
+		dataContainer.set(RottenData.AGE, this.age);
+		
+		return dataContainer;
 	}
 	
 }
