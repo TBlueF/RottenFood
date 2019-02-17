@@ -47,12 +47,12 @@ public class ImmutableRottenData extends AbstractImmutableData<ImmutableRottenDa
 	
 	public ImmutableValue<Long> lastUpdate(){
 		return Sponge.getRegistry().getValueFactory()
-			.createValue(RottenData.UPDATE_TIME, this.lastUpdate, -1L).asImmutable();
+			.createValue(RottenDataBuilder.UPDATE_TIME, this.lastUpdate, -1L).asImmutable();
 	}
 	
 	public ImmutableValue<Long> age(){
 		return Sponge.getRegistry().getValueFactory()
-			.createValue(RottenData.AGE, this.age, 0L).asImmutable();
+			.createValue(RottenDataBuilder.AGE, this.age, 0L).asImmutable();
 	}
 	
 	@Override
@@ -69,19 +69,19 @@ public class ImmutableRottenData extends AbstractImmutableData<ImmutableRottenDa
 	public DataContainer toContainer() {
 		DataContainer c = super.toContainer();
 		
-		c.set(RottenData.UPDATE_TIME, this.lastUpdate);
-		c.set(RottenData.AGE, this.age);
+		c.set(RottenDataBuilder.UPDATE_TIME, this.lastUpdate);
+		c.set(RottenDataBuilder.AGE, this.age);
 		
 		return c;
 	}
 	
 	@Override
 	protected void registerGetters() {
-		registerFieldGetter(RottenData.UPDATE_TIME, () -> lastUpdate);
-		registerKeyValue(RottenData.UPDATE_TIME, this::lastUpdate);
+		registerFieldGetter(RottenDataBuilder.UPDATE_TIME, () -> lastUpdate);
+		registerKeyValue(RottenDataBuilder.UPDATE_TIME, this::lastUpdate);
 		
-		registerFieldGetter(RottenData.AGE, () -> age);
-		registerKeyValue(RottenData.AGE, this::age);
+		registerFieldGetter(RottenDataBuilder.AGE, () -> age);
+		registerKeyValue(RottenDataBuilder.AGE, this::age);
 	}
 	
 }
