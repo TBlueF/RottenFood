@@ -31,38 +31,17 @@ import java.util.Optional;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.mutable.common.AbstractData;
 import org.spongepowered.api.data.merge.MergeFunction;
 import org.spongepowered.api.data.value.mutable.Value;
 
-import com.google.common.reflect.TypeToken;
-
 public class RottenData extends AbstractData<RottenData, ImmutableRottenData> {
 
-	@SuppressWarnings("serial")
-	public static final Key<Value<Long>> UPDATE_TIME = Key.builder()
-			.type(new TypeToken<Value<Long>>() {})
-			.query(DataQuery.of("rotten", "updateTime"))
-			.id("update_time")
-			.name("RottenFood Update Time")
-			.build();
-	
-	@SuppressWarnings("serial")
-	public static final Key<Value<Long>> AGE = Key.builder()
-			.type(new TypeToken<Value<Long>>() {})
-			.query(DataQuery.of("rotten", "age"))
-			.id("age")
-			.name("RottenFood Age")
-			.build();
-	
 	private long lastUpdate;
 	private long age;
 	
 	public RottenData() {
 		this(-1, 0);
-		
 	}
 	
 	public RottenData(long lastUpdate, long age){
@@ -72,12 +51,12 @@ public class RottenData extends AbstractData<RottenData, ImmutableRottenData> {
 	
 	public Value<Long> lastUpdate(){		
 		return Sponge.getRegistry().getValueFactory()
-			.createValue(RottenData.UPDATE_TIME, this.lastUpdate, -1L);
+			.createValue(RottenDataBuilder.UPDATE_TIME, this.lastUpdate, -1L);
 	}
 	
 	public Value<Long> age(){		
 		return Sponge.getRegistry().getValueFactory()
-			.createValue(RottenData.AGE, this.age, 0L);
+			.createValue(RottenDataBuilder.AGE, this.age, 0L);
 	}
 	
 	public long getLastUpdate() {
@@ -95,12 +74,12 @@ public class RottenData extends AbstractData<RottenData, ImmutableRottenData> {
 
 	@Override
 	public Optional<RottenData> from(DataContainer container) {		
-		if (!container.contains(UPDATE_TIME.getQuery(), AGE.getQuery())) {
+		if (!container.contains(RottenDataBuilder.UPDATE_TIME.getQuery(), RottenDataBuilder.AGE.getQuery())) {
             return Optional.empty();
 		}
 		
-		this.lastUpdate = container.getLong(UPDATE_TIME.getQuery()).get();
-		this.age = container.getLong(AGE.getQuery()).get();
+		this.lastUpdate = container.getLong(RottenDataBuilder.UPDATE_TIME.getQuery()).get();
+		this.age = container.getLong(RottenDataBuilder.AGE.getQuery()).get();
 		
 		return Optional.of(this);
 	}
@@ -124,21 +103,21 @@ public class RottenData extends AbstractData<RottenData, ImmutableRottenData> {
 	public DataContainer toContainer() {
 		DataContainer c = super.toContainer();
 		
-		c.set(UPDATE_TIME, this.lastUpdate);
-		c.set(AGE, this.age);
+		c.set(RottenDataBuilder.UPDATE_TIME, this.lastUpdate);
+		c.set(RottenDataBuilder.AGE, this.age);
 		
 		return c;
 	}
 	
 	@Override
 	protected void registerGettersAndSetters() {
-		registerFieldGetter(UPDATE_TIME, this::getLastUpdate);
-		registerKeyValue(UPDATE_TIME, this::lastUpdate);
-		registerFieldSetter(UPDATE_TIME, f -> lastUpdate = f);
+		registerFieldGetter(RottenDataBuilder.UPDATE_TIME, this::getLastUpdate);
+		registerKeyValue(RottenDataBuilder.UPDATE_TIME, this::lastUpdate);
+		registerFieldSetter(RottenDataBuilder.UPDATE_TIME, f -> lastUpdate = f);
 		
-		registerFieldGetter(AGE, this::getAge);
-		registerKeyValue(AGE, this::age);
-		registerFieldSetter(AGE, f -> age = f);
+		registerFieldGetter(RottenDataBuilder.AGE, this::getAge);
+		registerKeyValue(RottenDataBuilder.AGE, this::age);
+		registerFieldSetter(RottenDataBuilder.AGE, f -> age = f);
 	}
 	
 }

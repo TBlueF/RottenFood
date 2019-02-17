@@ -29,24 +29,45 @@ package de.bluecolored.rottenfood;
 import java.util.Optional;
 
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulatorBuilder;
 import org.spongepowered.api.data.persistence.DataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
+import org.spongepowered.api.data.value.mutable.Value;
+
+import com.google.common.reflect.TypeToken;
 
 public class RottenDataBuilder implements DataManipulatorBuilder<RottenData, ImmutableRottenData> {
 
+	@SuppressWarnings("serial")
+	public static final Key<Value<Long>> UPDATE_TIME = Key.builder()
+			.type(new TypeToken<Value<Long>>() {})
+			.query(DataQuery.of("rotten", "updateTime"))
+			.id("update_time")
+			.name("RottenFood Update Time")
+			.build();
+	
+	@SuppressWarnings("serial")
+	public static final Key<Value<Long>> AGE = Key.builder()
+			.type(new TypeToken<Value<Long>>() {})
+			.query(DataQuery.of("rotten", "age"))
+			.id("age")
+			.name("RottenFood Age")
+			.build();
+	
 	private long lastUpdate = -1;
 	private long age = 0;
 	
 	@Override
 	public Optional<RottenData> build(DataView container) throws InvalidDataException {
-		if (!container.contains(RottenData.UPDATE_TIME.getQuery(), RottenData.AGE.getQuery())) {
+		if (!container.contains(RottenDataBuilder.UPDATE_TIME.getQuery(), RottenDataBuilder.AGE.getQuery())) {
             return Optional.empty();
 		}
 		
-		long lastUpdate = container.getLong(RottenData.UPDATE_TIME.getQuery()).get();
-		long age = container.getLong(RottenData.AGE.getQuery()).get();
+		long lastUpdate = container.getLong(RottenDataBuilder.UPDATE_TIME.getQuery()).get();
+		long age = container.getLong(RottenDataBuilder.AGE.getQuery()).get();
 		
 		return Optional.of(new RottenData(lastUpdate, age));
 	}

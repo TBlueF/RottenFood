@@ -103,7 +103,6 @@ public class RottenFood {
 			.manipulatorId(PLUGIN_ID + "_rottendata")
 			.dataName("Rotten Food")
 			.buildAndRegister(Sponge.getPluginManager().getPlugin(PLUGIN_ID).get());
-		//Sponge.getDataManager().registerBuilder(RottenData.class, new RottenDataBuilder());
 
 		TypeSerializers.getDefaultSerializers().registerType(ItemConfig.TOKEN, new ItemConfigSerializer());
 	}
