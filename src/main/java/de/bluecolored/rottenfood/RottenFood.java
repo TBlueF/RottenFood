@@ -40,8 +40,11 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.GameReloadEvent;
@@ -75,7 +78,7 @@ import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 @Plugin(
 	id = RottenFood.PLUGIN_ID,
 	name = "RottenFood",
-	version = "1.2 (API 7.1)",
+	version = "1.3 (API 7.4)",
 	description = "This plugin gives items an expirationdate",
 	url = "http://www.bluecolored.de/rottenfood/",
 	authors = {"Blue (TBlueF, Lukas Rieger)", "Chaaya", "BlueColored", "craftednature"}
@@ -105,6 +108,7 @@ public class RottenFood {
 			.build();
 
 		TypeSerializers.getDefaultSerializers().registerType(ItemConfig.TOKEN, new ItemConfigSerializer());
+		TypeSerializers.getDefaultSerializers().registerType(ExtendedItemType.TOKEN, new ExtendedItemTypeSerializer());
 	}
 	
 	@Listener
@@ -192,7 +196,7 @@ public class RottenFood {
 		ItemStack old = is.copy();
 		
 		for (ItemConfig ic : itemConfigs){
-			if (!ic.getItems().contains(is.getType())) continue;
+			if (!ic.matchesItemStack(is)) continue;
 			
 			RottenData data = is.get(RottenData.class).orElse(new RottenData());
 			long lastUpdate = data.getLastUpdate(); 
@@ -202,7 +206,7 @@ public class RottenFood {
 			
 			double modifier = 1;
 			for (ItemAgeingModifierConfig mod : ic.getAgingModifiers()){
-				ItemType type = mod.getItem();
+				ExtendedItemType type = mod.getItem();
 				int count = mod.getMinItemCount();
 				
 				if (count > countItems(modifierScope, type)) continue;
@@ -224,7 +228,7 @@ public class RottenFood {
 			
 			Text name = null;
 			Text lore = null;
-			ItemStack newis = is;
+			ItemStack newIs = is;
 			
 			for (ItemAgeStateConfig as : ic.getAgeStates()){
 				if (as.getAge() > newAge) break;
@@ -233,16 +237,29 @@ public class RottenFood {
 				if (as.getLore() != null) lore = as.getLore();
 				
 				if (as.getReplacement() != null){
-					ItemType repl = as.getReplacement();
-					newis = ItemStack.of(repl, is.getQuantity());
-					
-					if (repl == ItemTypes.NONE || repl == ItemTypes.AIR){
-						newis = ItemStack.empty();
+					ExtendedItemType repl = as.getReplacement();
+					ItemType replIt = repl.getItemType();
+
+					if (replIt == ItemTypes.NONE || replIt == ItemTypes.AIR){
+						newIs = ItemStack.empty();
+					} else {
+						newIs = ItemStack.of(replIt, is.getQuantity());
+
+						if (repl.isUseUnsafeDamage()) {
+							try {
+								DataContainer container = newIs.toContainer();
+								container.set(DataQuery.of("UnsafeDamage"), repl.getUnsafeDamage());
+								newIs = ItemStack.builder().fromContainer(container).build();
+							} catch (InvalidDataException e){
+								logger.error("Failed to apply unsafe-damage to item! " +
+										"(ItemStack: " + newIs + ", Damage: " + repl.getUnsafeDamage() + ")", e);
+							}
+						}
 					}
 					
 					break;
 				} else {
-					newis = is;
+					newIs = is;
 				}
 			}
 			
@@ -260,25 +277,25 @@ public class RottenFood {
 				lorelist.add(ageText);
 			}
 			
-			if (name != null && !newis.get(Keys.DISPLAY_NAME).orElse(Text.EMPTY).equals(name)) newis.offer(Keys.DISPLAY_NAME, name);
-			if (!newis.get(Keys.ITEM_LORE).orElse(Lists.newArrayList()).equals(lorelist)) newis.offer(Keys.ITEM_LORE, lorelist);
+			if (name != null && !newIs.get(Keys.DISPLAY_NAME).orElse(Text.EMPTY).equals(name)) newIs.offer(Keys.DISPLAY_NAME, name);
+			if (!newIs.get(Keys.ITEM_LORE).orElse(Lists.newArrayList()).equals(lorelist)) newIs.offer(Keys.ITEM_LORE, lorelist);
 
-			if (!newis.equalTo(old) || forceUpdate){
-				slot.set(newis);
+			if (!newIs.equalTo(old) || forceUpdate){
+				slot.set(newIs);
 			}
 			
 			return;
 		}
 	}
 	
-	public int countItems(Inventory i, ItemType type){
+	public int countItems(Inventory i, ExtendedItemType type){
 		int count = 0;
 		
-		for (Inventory isl : i.query(QueryOperationTypes.ITEM_TYPE.of(type)).slots()){
+		for (Inventory isl : i.query(QueryOperationTypes.ITEM_TYPE.of(type.getItemType())).slots()){
 			Slot sl = (Slot) isl;
-			Optional<ItemStack> ois = sl.peek();
-			if (ois.isPresent()){
-				count += ois.get().getQuantity();
+			ItemStack is = sl.peek().orElse(null);
+			if (is != null && type.matches(is)){
+				count += is.getQuantity();
 			}
 		}
 		

@@ -32,7 +32,7 @@ import org.spongepowered.api.text.Text;
 public class ItemAgeStateConfig {
 
 	private long age;
-	private ItemType replacement;
+	private ExtendedItemType replacement;
 	private Text name;
 	private Text lore;
 	
@@ -50,14 +50,14 @@ public class ItemAgeStateConfig {
 		this.name = name;
 	}
 
-	public ItemAgeStateConfig(long age, ItemType replacement) {
+	public ItemAgeStateConfig(long age, ExtendedItemType replacement) {
 		this.age = age;
 		this.replacement = replacement;
 		this.name = null;
 		this.lore = null;
 	}
 	
-	public ItemAgeStateConfig(long age, Text name, Text lore, ItemType replacement) {
+	public ItemAgeStateConfig(long age, Text name, Text lore, ExtendedItemType replacement) {
 		this.age = age;
 		this.replacement = replacement;
 		this.lore = lore;
@@ -76,7 +76,7 @@ public class ItemAgeStateConfig {
 		return name;
 	}
 	
-	public ItemType getReplacement() {
+	public ExtendedItemType getReplacement() {
 		return replacement;
 	}
 	

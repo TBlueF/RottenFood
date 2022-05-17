@@ -26,16 +26,13 @@
 
 package de.bluecolored.rottenfood;
 
-import org.spongepowered.api.item.ItemType;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextParseException;
-import org.spongepowered.api.text.serializer.TextSerializers;
-
 import com.google.common.reflect.TypeToken;
-
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextParseException;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 public class ItemConfigSerializer implements TypeSerializer<ItemConfig> {
 
@@ -45,7 +42,7 @@ public class ItemConfigSerializer implements TypeSerializer<ItemConfig> {
 		ItemConfig.Builder builder = ItemConfig.builder();
 		
 		for (ConfigurationNode item : config.getNode("items").getChildrenList()){
-			builder.addItem(item.getValue(TypeToken.of(ItemType.class)));
+			builder.addItem(item.getValue(ExtendedItemType.TOKEN));
 		}
 		
 		for (ConfigurationNode state : config.getNode("states").getChildrenList()){
@@ -71,16 +68,16 @@ public class ItemConfigSerializer implements TypeSerializer<ItemConfig> {
 					lore = TextSerializers.FORMATTING_CODE.deserializeUnchecked(sLore);
 				}
 			}
-			
-			ItemType replacement = state.getNode("replacement-item").getValue(TypeToken.of(ItemType.class));
+
+			ExtendedItemType replacement = state.getNode("replacement-item").getValue(TypeToken.of(ExtendedItemType.class));
 			
 			builder.addAgeState(new ItemAgeStateConfig(age, name, lore, replacement));
 		}
 
 		for (ConfigurationNode mod : config.getNode("ageing-modifier").getChildrenList()){
 			double multiplier = mod.getNode("multiplier").getDouble(1);
-			
-			ItemType item = mod.getNode("item").getValue(TypeToken.of(ItemType.class));
+
+			ExtendedItemType item = mod.getNode("item").getValue(TypeToken.of(ExtendedItemType.class));
 			if (item == null) throw new ObjectMappingException("Config-value 'item' in 'ageing-modifier' is missing!");
 			
 			int minItems = mod.getNode("min-item-count").getInt(1);
